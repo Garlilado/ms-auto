@@ -1,0 +1,196 @@
+import string
+import time
+from globals import *
+from airtest.core.api import *
+from utils import set_device
+
+class Account:
+    
+    def __init__(self, device_url: string, multiplayer: bool, holder: bool = False, idx: int = 0):
+        self.dev = connect_device(device_url)
+        self.multiplayer = multiplayer
+        self.serialNo = device_url.split('/')[-1]
+        self.holder = holder
+        self.idx = idx
+        
+    def __touch_until_appears(self, pos, result_template: Template, timeout: int = None) -> tuple:
+        """
+        Touches a specific position and waits until another result_template appears.
+        If result_template does not appear within the timeout, pos is touched again.
+
+        Args:
+            pos (Template, coordinate(x,y)): The position to be touched.
+            result_template (Template): The template to wait for.
+            timeout (int): The maximum time to wait for result_template (in seconds).
+
+        Returns:
+            tuple: Returns the coordinate of the appeared template if result_template appears within the timeout, False otherwise.
+        """
+        start_time = time.time()
+        while True:
+            touch(pos, duration=0.2)
+            exists_result = exists(result_template)
+            if exists_result:
+                return exists_result
+            if timeout is not None and time.time() - start_time > timeout:
+                raise TimeoutError("Operation timed out")
+
+    def __touch_until_disappear(self, template: Template, pos = None, timeout: int = None):
+        """Define a function to continuously click a specific template until it disappears
+
+        Args:
+            template (Template): The template to be checked and should be disappeared.
+            pos (Template, coordinate(x,y)): The position to be touched. If None, the template is touched.
+            timeout (int): The maximum time to wait for result_template (in seconds).
+
+        Returns:
+            bool: Returns True if the template disappears, False otherwise.
+        """
+        start_time = time.time()
+        result_exists = exists(template)
+        while result_exists:
+            if pos is not None:
+                touch(pos, duration=0.2)
+            else:
+                touch(result_exists, duration=0.2)
+            sleep(1)
+            result_exists = exists(template)
+            if result_exists == False:
+                return True
+            if timeout is not None and time.time() - start_time > timeout:
+                raise TimeoutError("Operation timed out")
+        return False
+    
+    def __check_player_amount(self):
+        """Check if multi player or not
+        """
+        if self.multiplayer:
+            self.__touch_until_appears(multi_player, with_friends)
+            self.__touch_until_appears(with_friends, Attack)
+            self.__touch_until_appears(Attack, Waiting)
+        else:
+            #TODO: add single player mode
+            return
+
+    @set_device
+    def choose_map(self, map_name: string):
+        """Chooses a map based on the provided map name.
+
+        Args:
+            map_name (string): The name of the map to be chosen.
+        """
+        # Set a timeout (in seconds)
+        timeout = 60  # Change this to your desired timeout
+        start_time = time.time()
+    
+        # First click initial to make sure the initial page is displayed
+        if not exists(Join):
+            self.__touch_until_appears(Initial, Join)
+        # Click the map entrance
+        self.__touch_until_appears((200,550), Adventure)
+        # Check the map to be entered
+        if map_name == 'Training':
+            # Go to the grow map
+            training_pos = self.__touch_until_appears(Grow,Training)
+            print("Training position: ", training_pos)
+            # Go into the training stage
+            self.__touch_until_appears(training_pos, Back)
+            # Deal with different training stages
+            while True: #loop to search for dedicated stages
+                if time.time() - start_time > timeout:
+                    print("Timeout!")
+                    return False
+                if exists(Exp_exist): # exp stage
+                    # Go to the prepare screen
+                    self.__touch_until_appears(Exp_exist, Exp_stage)
+                    self.__touch_until_appears(Exp_stage, multi_player)
+                    self.__check_player_amount()
+                    break
+                elif exists(start_point): # start point stage is new
+                    self.__touch_until_appears(start_point, Consume)
+                    finished = find_all(Finished)
+                    if finished is None: # no stages finished
+                        self.__touch_until_appears((180,560), multi_player)
+                    elif len(finished) == 1:
+                        self.__touch_until_appears((180,480), multi_player)
+                    elif len(finished) == 2:
+                        self.__touch_until_appears((180,400), multi_player)
+                    self.__check_player_amount()
+                    break
+                elif exists(new_stage): # new stage
+                    self.__touch_until_appears(new_stage, Consume)
+                    self.__touch_until_appears((180,400), multi_player)
+                    self.__check_player_amount()
+                    break
+                # TODO: add final stage check
+                else: # no stages meet the requirements
+                    swipe((180,300),(180,520),duration=0.3)
+                    sleep(1)
+                    continue
+        return True
+    
+    @set_device
+    def join(self, failed_times: int = 5):
+        """Join the stage
+        """
+        # First click initial to make sure the initial page is displayed
+        if not exists(Join):
+            self.__touch_until_appears(Initial, Join)
+        self.__touch_until_disappear(Join)
+        # check if join successfully
+        while True:
+            sleep(2) # Add sleep to reduce judge time
+            if exists(re_search) and exists(room_exist): # search successfully
+                self.__touch_until_disappear(re_search, pos=(200,240))
+                self.__touch_until_disappear(Attack)
+                break
+            elif exists(not_search): # Not search a room
+                failed_times -= 1
+                if failed_times == 0:
+                    raise TimeoutError("Failed to join the stage")
+                self.__touch_until_appear(re_search, Searching)
+            elif exists(Searching): # searching
+                continue
+
+    @set_device
+    def start_stage(self, player_amount: int = 4):
+        """Start the stage
+        """
+        if self.multiplayer:
+            # waiting for other players to join
+            while True:
+                slot = find_all(Waiting)
+                if slot is None and player_amount == 4:
+                    print("-----------------------------start---------------------------------")
+                    self.__touch_until_disappear(change_order, pos = (200,600))
+                    break
+                elif slot is not None and (4 - len(slot)) == player_amount:
+                    print("-----------------------------start---------------------------------")
+                    self.__touch_until_disappear(change_order, pos = (200,600))
+                    break
+                sleep(1)
+        else:
+            self.__touch_until_disappear(Attack)
+
+    @set_device
+    def pass_level(self):
+        """Pass the level and get the reward, then back to the initial page
+        """
+        # pass the stage
+        while True:
+            swipe((200,350),(100,300),duration=1)
+            sleep(1)
+            if self.__touch_until_disappear(passOk):
+                break
+        # pass the reward
+        while True:
+            touch((200,350), duration=0.2)
+            sleep(1)
+            if self.__touch_until_disappear(resultOk):
+                break
+        # back to the initial page
+        result_exists = exists(Initial)
+        while not result_exists:
+            touch((200,350), duration=0.2)
+            sleep(1)
+            result_exists = exists(Initial)
