@@ -67,9 +67,10 @@ class Account:
         if self.multiplayer:
             self.__touch_until_appears(multi_player, with_friends)
             self.__touch_until_appears(with_friends, Attack)
+            # TODO: add reward box choose
             self.__touch_until_appears(Attack, Waiting)
         else:
-            #TODO: add single player mode
+            # TODO: add single player mode
             return
 
     @set_device
@@ -86,10 +87,10 @@ class Account:
         # First click initial to make sure the initial page is displayed
         if not exists(Join):
             self.__touch_until_appears(Initial, Join)
-        # Click the map entrance
-        self.__touch_until_appears((200,550), Adventure)
         # Check the map to be entered
         if map_name == 'Training':
+            # Click the map entrance
+            self.__touch_until_appears((200,550), Adventure)
             # Go to the grow map
             training_pos = self.__touch_until_appears(Grow,Training)
             print("Training position: ", training_pos)
@@ -127,6 +128,12 @@ class Account:
                     swipe((180,300),(180,520),duration=0.3)
                     sleep(1)
                     continue
+        elif map_name == 'Repeat':
+            # Go to repeat map
+            if self.multiplayer:
+                self.__touch_until_appears(short_cut, Attack, timeout)
+                # TODO: add reward box choose
+                self.__touch_until_appears(Attack, Waiting, timeout)
         return True
     
     @set_device
@@ -139,8 +146,8 @@ class Account:
         self.__touch_until_disappear(Join)
         # check if join successfully
         while True:
-            sleep(2) # Add sleep to reduce judge time
-            if exists(re_search) and exists(room_exist): # search successfully
+            sleep(1) # Add sleep to reduce judge time
+            if exists(room_exist): # search successfully
                 self.__touch_until_disappear(re_search, pos=(200,240))
                 self.__touch_until_disappear(Attack)
                 break
@@ -186,6 +193,8 @@ class Account:
         while True:
             touch((200,350), duration=0.2)
             sleep(1)
+            # TODO:check luck max
+            # luck max ok position (200,420)
             if self.__touch_until_disappear(resultOk):
                 break
         # back to the initial page

@@ -26,3 +26,5 @@ Searching = Template(r"screenshot/searching.png", record_pos=(0.343, 0.625), res
 not_search = Template(r"screenshot/not_search.png", record_pos=(0.343, 0.625), resolution=(400, 700))
 room_exist = Template(r"screenshot/room_exist.png", record_pos=(-0.47, -0.28), resolution=(400, 700))
 exit_join = Template(r"screenshot/exit_join.png", record_pos=(-0.47, -0.28), resolution=(400, 700))
+short_cut = Template(r"screenshot/short_cut.png", record_pos=(-0.003, 0.403), resolution=(400, 700))
+luck_max = Template(r"screenshot/luck_max.png", record_pos=(0.0, 0.045), resolution=(400, 700))
