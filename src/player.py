@@ -70,7 +70,9 @@ class Account:
             # TODO: add reward box choose
             self.__touch_until_appears(Attack, Waiting)
         else:
-            # TODO: add single player mode
+            self.__touch_until_appears(single_player, replace_helper)
+            self.__touch_until_appears((200,380), Attack)
+            # TODO: add reward box choose
             return
 
     @set_device
@@ -124,7 +126,7 @@ class Account:
                     self.__check_player_amount()
                     break
                 # TODO: add final stage check
-                else: # no stages meet the requirements
+                else: # no stages meet the requirements # TODO: need refactor, support multi and single
                     swipe((180,300),(180,520),duration=0.3)
                     sleep(1)
                     continue
@@ -155,7 +157,7 @@ class Account:
                 failed_times -= 1
                 if failed_times == 0:
                     raise TimeoutError("Failed to join the stage")
-                self.__touch_until_appear(re_search, Searching)
+                self.__touch_until_appears(re_search, Searching)
             elif exists(Searching): # searching
                 continue
 
@@ -187,8 +189,12 @@ class Account:
         while True:
             swipe((200,350),(100,300),duration=1)
             sleep(1)
-            if self.__touch_until_disappear(passOk):
-                break
+            if exists(passOk):
+                if exists(stage_over):
+                    self.__touch_until_disappear(passOk)
+                    break
+                else:
+                    self.__touch_until_disappear(passOk)
         # pass the reward
         while True:
             touch((200,350), duration=0.2)

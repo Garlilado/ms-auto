@@ -17,8 +17,8 @@ if __name__ == "__main__":
     parser.add_argument("--round-hold", help="Specify if hold the room round or not")
     parser.add_argument("--join", help="Only join the room, internal use only")
     parser.add_argument("--pass-stage", help="Pass the stage, internal use only")
-    parser.add_argument("--auto-pass", help="Auto pass the stage", action="store_true")
-    parser.add_argument("--map", help="Specify the map to play")
+    parser.add_argument("--auto-pass", help="Auto pass the stage")
+    parser.add_argument("--Training", help="Starting pass the training stage")
     args = parser.parse_args()
     
     # Setup the test environment
@@ -31,7 +31,6 @@ if __name__ == "__main__":
     acc3 = Account("Android://127.0.0.1:5037/emulator-5560", True, idx= 3)
     
     accountList = [acc0, acc1, acc2, acc3]
-    # accountList = [acc1, acc2, acc3]
     
     # Only join the room
     if args.join:
@@ -45,7 +44,22 @@ if __name__ == "__main__":
                 acc.pass_level()
                 break
     elif args.auto_pass:
-        utils.multiplayer_pass_stage(accountList)
+        if args.auto_pass == 'all':
+            utils.multiplayer_pass_stage(accountList)
+        elif int(args.auto_pass) in [0, 1, 2, 3]:
+            for acc in accountList:
+                if acc.idx == int(args.auto_pass):
+                    acc.pass_level()
+    elif args.Training: # Only pass training in single player mode
+        for acc in accountList:
+            if acc.idx == int(args.Training):
+                # Set the account to single player mode
+                acc.multiplayer = False
+                # Start a loop to play the game
+                for i in range(20): #TODO: add final stage finished to break the loop
+                    acc.choose_map("Training")
+                    acc.start_stage()
+                    acc.pass_level()
     else:
         # Set the holder account
         for acc in accountList:
@@ -55,45 +69,24 @@ if __name__ == "__main__":
                 # Move holder to the first position
                 accountList.insert(0, accountList.pop(accountList.index(acc)))
                 break
-        
-        for i in range(1): #TODO: add final stage finished to break the loop
-            if args.map == "Training":
-                # Create a room
-                if holder_acc.choose_map("Training"):
-                    # Rest of the accounts join the room
-                    processes = []
-                    for acc in accountList[1:]:  # Skip the first account, which is the holder
-                        p = subprocess.Popen(["python", "src/main.py", "--join", str(acc.idx)])
-                        processes.append(p)
+    
+        for i in range(20): #TODO: add final stage finished to break the loop
+            # Create a room
+            if holder_acc.choose_map("Repeat"):
+                # Rest of the accounts join the room
+                processes = []
+                for acc in accountList[1:]:  # Skip the first account, which is the holder
+                    p = subprocess.Popen(["python", "src/main.py", "--join", str(acc.idx)])
+                    processes.append(p)
+                sleep(3)
+            # Wait for all processes to finish
+            for p in processes:
+                exit_code = p.wait()
+                if exit_code != 0:
+                    print(f"Process {p.pid} exited with code {exit_code}, exiting...")
+                    sys.exit(exit_code)
 
-                # Wait for all processes to finish
-                for p in processes:
-                    exit_code = p.wait()
-                    if exit_code != 0:
-                        print(f"Process {p.pid} exited with code {exit_code}, exiting...")
-                        sys.exit(exit_code)
-
-                # Holder waits for the room to be full
-                holder_acc.start_stage(len(accountList))
-                
-                utils.multiplayer_pass_stage(accountList)
-            elif args.map == "Repeat":
-                # Create a room
-                if holder_acc.choose_map("Repeat"):
-                    # Rest of the accounts join the room
-                    processes = []
-                    for acc in accountList[1:]:  # Skip the first account, which is the holder
-                        p = subprocess.Popen(["python", "src/main.py", "--join", str(acc.idx)])
-                        processes.append(p)
-
-                # Wait for all processes to finish
-                for p in processes:
-                    exit_code = p.wait()
-                    if exit_code != 0:
-                        print(f"Process {p.pid} exited with code {exit_code}, exiting...")
-                        sys.exit(exit_code)
-
-                # Holder waits for the room to be full
-                holder_acc.start_stage(len(accountList))
-                
-                utils.multiplayer_pass_stage(accountList)
+            # Holder waits for the room to be full
+            holder_acc.start_stage(len(accountList))
+            
+            utils.multiplayer_pass_stage(accountList)

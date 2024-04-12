@@ -28,3 +28,5 @@ room_exist = Template(r"screenshot/room_exist.png", record_pos=(-0.47, -0.28), r
 exit_join = Template(r"screenshot/exit_join.png", record_pos=(-0.47, -0.28), resolution=(400, 700))
 short_cut = Template(r"screenshot/short_cut.png", record_pos=(-0.003, 0.403), resolution=(400, 700))
 luck_max = Template(r"screenshot/luck_max.png", record_pos=(0.0, 0.045), resolution=(400, 700))
+replace_helper = Template(r"screenshot/replace_helper.png", record_pos=(0.37, 0.095), resolution=(400, 700))
+stage_over = Template(r"screenshot/stage_over.png", record_pos=(0.37, 0.095), resolution=(400, 700))
