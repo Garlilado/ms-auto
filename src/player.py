@@ -20,12 +20,9 @@ def set_device(func):
 
 class Account:
     
-    def __init__(self, device_url: string, multiplayer: bool, holder: bool = False, idx: int = 0):
+    def __init__(self, device_url: string):
         self.dev = connect_device(device_url)
-        self.multiplayer = multiplayer
         self.serialNo = device_url.split('/')[-1]
-        self.holder = holder
-        self.idx = idx
         
     def __touch_until_appears(self, pos, result_template: Template, timeout: int = None) -> tuple:
         """
@@ -78,10 +75,13 @@ class Account:
                 raise TimeoutError("Operation timed out")
         return False
     
-    def __check_player_amount(self):
+    def __check_player_amount(self, player_amount: int):
         """Check if multi player or not
+        
+        Args:
+            player_amount (int): The amount of players in the game
         """
-        if self.multiplayer:
+        if player_amount > 1:
             self.__touch_until_appears(multi_player, with_friends)
             self.__touch_until_appears(with_friends, Attack)
             # TODO: add reward box choose
@@ -93,11 +93,12 @@ class Account:
             return
 
     @set_device
-    def choose_map(self, map_name: string):
+    def choose_map(self, map_name: string, player_amount: int):
         """Chooses a map based on the provided map name.
 
         Args:
             map_name (string): The name of the map to be chosen.
+            player_amount (int): The amount of players in the game
         """
         # Set a timeout (in seconds)
         timeout = 60  # Change this to your desired timeout
@@ -124,7 +125,7 @@ class Account:
                     # Go to the prepare screen
                     self.__touch_until_appears(Exp_exist, Exp_stage)
                     self.__touch_until_appears(Exp_stage, multi_player)
-                    self.__check_player_amount()
+                    self.__check_player_amount(1)
                     break
                 elif exists(start_point): # start point stage is new
                     self.__touch_until_appears(start_point, Consume)
@@ -135,12 +136,12 @@ class Account:
                         self.__touch_until_appears((180,480), multi_player)
                     elif len(finished) == 2:
                         self.__touch_until_appears((180,400), multi_player)
-                    self.__check_player_amount()
+                    self.__check_player_amount(1)
                     break
                 elif exists(new_stage): # new stage
                     self.__touch_until_appears(new_stage, Consume)
                     self.__touch_until_appears((180,400), multi_player)
-                    self.__check_player_amount()
+                    self.__check_player_amount(1)
                     break
                 # TODO: add final stage check
                 else: # no stages meet the requirements # TODO: need refactor, support multi and single
@@ -149,10 +150,11 @@ class Account:
                     continue
         elif map_name == 'Repeat':
             # Go to repeat map
-            if self.multiplayer:
+            if player_amount > 1:
                 self.__touch_until_appears(short_cut, Attack, timeout)
                 # TODO: add reward box choose
                 self.__touch_until_appears(Attack, Waiting, timeout)
+            # TODO: add self-mode for repeat
         return True
     
     @set_device
@@ -179,20 +181,19 @@ class Account:
                 continue
 
     @set_device
-    def start_stage(self, player_amount: int = 4):
+    def start_stage(self, player_amount: int):
         """Start the stage
         """
-        if self.multiplayer:
+        if player_amount > 1:
             # waiting for other players to join
             while True:
                 slot = find_all(Waiting)
                 if slot is None and player_amount == 4:
-                    print("-----------------------------start---------------------------------")
                     self.__touch_until_disappear(change_order, pos = (200,600))
                     break
                 elif slot is not None and (4 - len(slot)) == player_amount:
-                    print("-----------------------------start---------------------------------")
-                    self.__touch_until_disappear(change_order, pos = (200,600))
+                    self.__touch_until_appears((200,600), final_check)
+                    self.__touch_until_disappear(Yes)
                     break
                 sleep(1)
         else:

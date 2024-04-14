@@ -1,5 +1,5 @@
 from airtest.core.api import *
-from globals import DEVICES
+from globals import DEVICES, MAP_TRANSLATE
 import subprocess
 import sys
 import tkinter as tk
@@ -24,7 +24,7 @@ def multiplayer_pass_stage(accountList: list):
     # All accounts pass the stage
     processes = []
     for acc in accountList:
-        p = subprocess.Popen(["python", "src/main.py", "--pass-stage", str(acc.idx)])
+        p = subprocess.Popen(["python", "src/operate.py", "--pass-stage", str(acc)])
         processes.append(p)
 
     # Wait for all processes to finish
@@ -42,12 +42,65 @@ def auto_pass_stage(holder:str, button: tk.Button):
         button (tk.Button): The button that triggers the function.
     """
     button.after(100, button.config, {'state': tk.DISABLED})  # Add a delay before disabling the button
-    try: 
+    try:
         if not holder:
             messagebox.showerror("错误", "请选择房主")
             return
-        hodler_acc = Account(DEVICES[holder], False, True)
+        hodler_acc = Account(DEVICES[holder])
         hodler_acc.pass_level()
+    finally:
+        button.after(100, button.config, {'state': tk.NORMAL})
+
+def pass_stage(holder:str, acc_list: list, map:str, button: tk.Button, run_times: str):
+    print(run_times)
+    button.after(100, button.config, {'state': tk.DISABLED})  # Add a delay before disabling the button
+    if run_times != '':
+        run_times = int(run_times)
+    # TODO: temporary assign run_times to 1 beacuse of not end check
+    else:
+        run_times = 1
+    try:
+        # Check if the holder, map, and accounts are selected
+        if not holder:
+            messagebox.showerror("错误", "请选择房主")
+            return
+        if not map:
+            messagebox.showerror("错误", "请选择地图")
+            return
+        elif map == "塔": # TODO: not support yet
+            messagebox.showerror("错误", f"暂不支持{map}")
+        else:
+            map = MAP_TRANSLATE[map]
+        # Create accounts
+        holder_acc = Account(DEVICES[holder])
+        # Let the holder start the map
+        while run_times == '' or run_times > 0:
+            if holder_acc.choose_map(map, len(acc_list)):
+                if map == 'Training' or len(acc_list) == 1:
+                    holder_acc.start_stage(1)
+                    holder_acc.pass_level()
+                elif len(acc_list) > 1: # multiplayer join the room
+                    processes = []
+                    for acc in acc_list:
+                        if acc != holder:
+                            p = subprocess.Popen(["python", "src/operate.py", "--join", str(acc)])
+                            processes.append(p)
+                    sleep(3)
+                    # Wait for all processes to finish
+                    for p in processes:
+                        exit_code = p.wait()
+                        if exit_code != 0:
+                            print(f"Process {p.pid} exited with code {exit_code}, exiting...")
+                            sys.exit(exit_code)
+                    
+                    # Holder start the stage
+                    holder_acc.start_stage(len(acc_list))
+                    multiplayer_pass_stage(acc_list)
+                    
+            if run_times != '':
+                run_times -= 1
+                print(run_times)
+            
     finally:
         button.after(100, button.config, {'state': tk.NORMAL})
 

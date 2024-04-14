@@ -53,3 +53,4 @@ resurrection_chk = tk.Checkbutton(selectable_frm, text='复活')
 # Starter
 start_frm = ttk.Frame(stage_frm)
 auto_run_button = tk.Button(start_frm, text="房主自动跑图(1x)", command=lambda: utils.auto_pass_stage(holder_combobox.get(), auto_run_button))
+start_button = tk.Button(start_frm, text="开始", command=lambda: utils.pass_stage(holder_combobox.get(), accountlist, map_choose_combobox.get(), start_button, run_times_entry.get()))
