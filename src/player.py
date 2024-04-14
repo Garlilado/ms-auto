@@ -28,7 +28,10 @@ class Account:
         """
         start_time = time.time()
         while True:
-            touch(pos, duration=0.2)
+            if isinstance(pos, Template) and exists(pos):
+                touch(pos, duration=0.2)
+            elif isinstance(pos, tuple):
+                touch(pos, duration=0.2)
             exists_result = exists(result_template)
             if exists_result:
                 return exists_result
@@ -127,7 +130,7 @@ class Account:
                     break
                 # TODO: add final stage check
                 else: # no stages meet the requirements # TODO: need refactor, support multi and single
-                    swipe((180,300),(180,520),duration=0.3)
+                    swipe((180,300),(180,520),duration=0.2)
                     sleep(1)
                     continue
         elif map_name == 'Repeat':
@@ -185,8 +188,10 @@ class Account:
     def pass_level(self):
         """Pass the level and get the reward, then back to the initial page
         """
+        count = 0
         # pass the stage
         while True:
+            count += 1
             swipe((200,350),(100,300),duration=1)
             sleep(1)
             if exists(passOk):
@@ -195,6 +200,10 @@ class Account:
                     break
                 else:
                     self.__touch_until_disappear(passOk)
+            if count == 10:
+                count = 0 # reset count
+                if exists(Resurrection):
+                    self.__touch_until_disappear(Yes)
         # pass the reward
         while True:
             touch((200,350), duration=0.2)
