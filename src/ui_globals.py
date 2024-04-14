@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from globals import DEVICES, DEVICES_NAMES
-from utils import check_connection
+import utils
 
 root = tk.Tk()
 root.title("MS Auto")
@@ -19,7 +19,7 @@ status_frm = ttk.Frame(status_notebook, padding=10)
 # Title of the first Notebook
 status_notebook_title = tk.Label(status_frm, text="Device List", font=("Arial", 20))
 # Refresh button
-refresh_button = tk.Button(status_frm, text="刷新", command=lambda: check_connection(status_frm, checkbuttons, accountlist, vars, holder_combobox))
+refresh_button = tk.Button(status_frm, text="刷新", command=lambda: utils.check_connection(status_frm, checkbuttons, accountlist, vars, holder_combobox))
 # Account choose header
 acc_choose_header = tk.Label(status_frm, text="选择账号", font=("Arial", 14), borderwidth=1, relief='solid')
 # Device name header
@@ -52,4 +52,4 @@ resurrection_chk = tk.Checkbutton(selectable_frm, text='复活')
 
 # Starter
 start_frm = ttk.Frame(stage_frm)
-auto_run_button = tk.Button(start_frm, text="房主自动跑图(1x)")
+auto_run_button = tk.Button(start_frm, text="房主自动跑图(1x)", command=lambda: utils.auto_pass_stage(holder_combobox.get(), auto_run_button))
