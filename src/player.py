@@ -28,7 +28,10 @@ class Account:
         """
         start_time = time.time()
         while True:
-            touch(pos, duration=0.2)
+            if isinstance(pos, Template) and exists(pos):
+                touch(pos, duration=0.2)
+            elif isinstance(pos, tuple):
+                touch(pos, duration=0.2)
             exists_result = exists(result_template)
             if exists_result:
                 return exists_result
@@ -67,9 +70,12 @@ class Account:
         if self.multiplayer:
             self.__touch_until_appears(multi_player, with_friends)
             self.__touch_until_appears(with_friends, Attack)
+            # TODO: add reward box choose
             self.__touch_until_appears(Attack, Waiting)
         else:
-            #TODO: add single player mode
+            self.__touch_until_appears(single_player, replace_helper)
+            self.__touch_until_appears((200,380), Attack)
+            # TODO: add reward box choose
             return
 
     @set_device
@@ -86,10 +92,10 @@ class Account:
         # First click initial to make sure the initial page is displayed
         if not exists(Join):
             self.__touch_until_appears(Initial, Join)
-        # Click the map entrance
-        self.__touch_until_appears((200,550), Adventure)
         # Check the map to be entered
         if map_name == 'Training':
+            # Click the map entrance
+            self.__touch_until_appears((200,550), Adventure)
             # Go to the grow map
             training_pos = self.__touch_until_appears(Grow,Training)
             print("Training position: ", training_pos)
@@ -123,10 +129,16 @@ class Account:
                     self.__check_player_amount()
                     break
                 # TODO: add final stage check
-                else: # no stages meet the requirements
-                    swipe((180,300),(180,520),duration=0.3)
+                else: # no stages meet the requirements # TODO: need refactor, support multi and single
+                    swipe((180,300),(180,520),duration=0.2)
                     sleep(1)
                     continue
+        elif map_name == 'Repeat':
+            # Go to repeat map
+            if self.multiplayer:
+                self.__touch_until_appears(short_cut, Attack, timeout)
+                # TODO: add reward box choose
+                self.__touch_until_appears(Attack, Waiting, timeout)
         return True
     
     @set_device
@@ -139,8 +151,8 @@ class Account:
         self.__touch_until_disappear(Join)
         # check if join successfully
         while True:
-            sleep(2) # Add sleep to reduce judge time
-            if exists(re_search) and exists(room_exist): # search successfully
+            sleep(1) # Add sleep to reduce judge time
+            if exists(room_exist): # search successfully
                 self.__touch_until_disappear(re_search, pos=(200,240))
                 self.__touch_until_disappear(Attack)
                 break
@@ -148,7 +160,7 @@ class Account:
                 failed_times -= 1
                 if failed_times == 0:
                     raise TimeoutError("Failed to join the stage")
-                self.__touch_until_appear(re_search, Searching)
+                self.__touch_until_appears(re_search, Searching)
             elif exists(Searching): # searching
                 continue
 
@@ -176,16 +188,28 @@ class Account:
     def pass_level(self):
         """Pass the level and get the reward, then back to the initial page
         """
+        count = 0
         # pass the stage
         while True:
+            count += 1
             swipe((200,350),(100,300),duration=1)
             sleep(1)
-            if self.__touch_until_disappear(passOk):
-                break
+            if exists(passOk):
+                if exists(stage_over):
+                    self.__touch_until_disappear(passOk)
+                    break
+                else:
+                    self.__touch_until_disappear(passOk)
+            if count == 10:
+                count = 0 # reset count
+                if exists(Resurrection):
+                    self.__touch_until_disappear(Yes)
         # pass the reward
         while True:
             touch((200,350), duration=0.2)
             sleep(1)
+            # TODO:check luck max
+            # luck max ok position (200,420)
             if self.__touch_until_disappear(resultOk):
                 break
         # back to the initial page
