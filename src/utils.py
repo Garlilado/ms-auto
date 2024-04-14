@@ -4,21 +4,8 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import ttk
-
-def set_device(func):
-    """
-    A decorator that sets the current device before calling the decorated function.
-
-    Args:
-        func (callable): The function to be decorated. This function should be a method of a class that has a 'dev' attribute.
-
-    Returns:
-        callable: The decorated function, which will call 'set_current(self.dev)' before calling the original function.
-    """
-    def wrapper(self, *args, **kwargs):
-        set_current(self.serialNo)
-        return func(self, *args, **kwargs)
-    return wrapper
+from tkinter import messagebox
+from player import Account
 
 def multiplayer_pass_stage(accountList: list):
     """
@@ -46,6 +33,23 @@ def multiplayer_pass_stage(accountList: list):
         if exit_code != 0:
             print(f"Process {p.pid} exited with code {exit_code}, exiting...")
             sys.exit(exit_code)
+
+def auto_pass_stage(holder:str, button: tk.Button):
+    """Automatically pass the stage for the given account holder.
+
+    Args:
+        holder (str): The name of the account holder.
+        button (tk.Button): The button that triggers the function.
+    """
+    button.after(100, button.config, {'state': tk.DISABLED})  # Add a delay before disabling the button
+    try: 
+        if not holder:
+            messagebox.showerror("错误", "请选择房主")
+            return
+        hodler_acc = Account(DEVICES[holder], False, True)
+        hodler_acc.pass_level()
+    finally:
+        button.after(100, button.config, {'state': tk.NORMAL})
 
 def add_to_accountlist(account:str, var: tk.BooleanVar, accountlist: list, holder_combobox: ttk.Combobox = None):
     """
