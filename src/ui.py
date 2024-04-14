@@ -1,3 +1,4 @@
+from airtest.core.api import *
 import tkinter as tk
 from tkinter import ttk
 from utils import check_connection, add_to_accountlist
@@ -5,6 +6,12 @@ from globals import DEVICES_NAMES
 from player import *
 from ui_globals import *
 
+
+ST.OPDELAY = 0.5
+ST.CVSTRATEGY = ["mstpl", "sift"]
+
+# Setup the test environment
+auto_setup(__file__)
 
 root.grid_rowconfigure(0, weight=0)  # Allow the first row to expand when the window size changes
 root.grid_rowconfigure(1, weight=1)  # Allow the second row to expand more when the window size changes
@@ -53,5 +60,6 @@ resurrection_chk.grid(column=0, row=1, sticky='nsew')
 
 start_frm.grid(column=0, row=2, sticky="nsew")
 auto_run_button.grid(column=0, row=0, sticky='nsew', padx=150)
+start_button.grid(column=1, row=0, sticky='nsew')
 
 root.mainloop()

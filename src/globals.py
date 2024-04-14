@@ -6,6 +6,7 @@ DEVICES = {"acc0": "Android://127.0.0.1:5037/emulator-5554",
            "acc2": "Android://127.0.0.1:5037/emulator-5558",
            "acc3": "Android://127.0.0.1:5037/emulator-5560"}
 DEVICES_NAMES = ['主号', '副号1', '副号2', '副号3']
+MAP_TRANSLATE = {"训练": "Training", "重复": "Repeat", "塔": "Tower"}
 
 passOk=Template(r"screenshot/pass_ok.png", record_pos=(0.0, 0.27), resolution=(400, 700))
 resultOk=Template(r"screenshot/result_ok.png", record_pos=(0.0, 0.802), resolution=(400, 700))
@@ -38,3 +39,4 @@ replace_helper = Template(r"screenshot/replace_helper.png", record_pos=(0.372, 0
 stage_over = Template(r"screenshot/stage_over.png", record_pos=(0.318, 0.105), resolution=(400, 700))
 Resurrection = Template(r"screenshot/resurrection.png", record_pos=(0.037, 0.065), resolution=(400, 700))
 Yes = Template(r"screenshot/yes.png", record_pos=(0.037, 0.065), resolution=(400, 700))
+final_check = Template(r"screenshot/final_check.png", record_pos=(0.0, 0.0), resolution=(400, 700))
