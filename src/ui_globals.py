@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-from globals import DEVICES, DEVICES_NAMES
+from globals import DEVICES
+import threading
 import utils
 
 root = tk.Tk()
@@ -52,5 +53,6 @@ resurrection_chk = tk.Checkbutton(selectable_frm, text='复活')
 
 # Starter
 start_frm = ttk.Frame(stage_frm)
-auto_run_button = tk.Button(start_frm, text="房主自动跑图(1x)", command=lambda: utils.auto_pass_stage(holder_combobox.get(), auto_run_button))
-start_button = tk.Button(start_frm, text="开始", command=lambda: utils.pass_stage(holder_combobox.get(), accountlist, map_choose_combobox.get(), start_button, run_times_entry.get()))
+auto_run_button = tk.Button(start_frm, text="房主自动跑图(1x)", command=lambda: threading.Thread(target=utils.auto_pass_stage, args = (holder_combobox.get(), auto_run_button)).start())
+multi_player_auto_run_button = tk.Button(start_frm, text="多人自动跑图(1x)", command=lambda: threading.Thread(target=utils.multiplayer_pass_stage, args = (accountlist,)).start())
+start_button = tk.Button(start_frm, text="开始", command=lambda: threading.Thread(target=utils.pass_stage, args=(holder_combobox.get(), accountlist, map_choose_combobox.get(), start_button, run_times_entry.get())).start())

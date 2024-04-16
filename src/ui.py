@@ -59,7 +59,8 @@ selectable_frm_title.grid(column=0, row=0)  # Add the title to the grid
 resurrection_chk.grid(column=0, row=1, sticky='nsew')
 
 start_frm.grid(column=0, row=2, sticky="nsew")
-auto_run_button.grid(column=0, row=0, sticky='nsew', padx=150)
+auto_run_button.grid(column=0, row=0, sticky='nsew', padx=150, pady=10)
+multi_player_auto_run_button.grid(column=0, row=1, sticky='nsew', padx=150, pady=10)
 start_button.grid(column=1, row=0, sticky='nsew')
 
 root.mainloop()
