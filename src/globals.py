@@ -1,12 +1,13 @@
 from math import exp
 from airtest.core.cv import Template
+from numpy import choose
 
 DEVICES = {"acc0": "Android://127.0.0.1:5037/emulator-5554",
            "acc1": "Android://127.0.0.1:5037/emulator-5556",
            "acc2": "Android://127.0.0.1:5037/emulator-5558",
            "acc3": "Android://127.0.0.1:5037/emulator-5560"}
 DEVICES_NAMES = ['主号', '副号1', '副号2', '副号3']
-MAP_TRANSLATE = {"训练": "Training", "重复": "Repeat", "塔": "Tower"}
+MAP_TRANSLATE = {"训练": "Training", "重复": "Repeat", "塔": "Tower", "神殿": "Temple"}
 
 passOk=Template(r"screenshot/pass_ok.png", record_pos=(0.0, 0.27), resolution=(400, 700))
 resultOk=Template(r"screenshot/result_ok.png", record_pos=(0.0, 0.802), resolution=(400, 700))
@@ -40,3 +41,8 @@ stage_over = Template(r"screenshot/stage_over.png", record_pos=(0.318, 0.105), r
 Resurrection = Template(r"screenshot/resurrection.png", record_pos=(0.037, 0.065), resolution=(400, 700))
 Yes = Template(r"screenshot/yes.png", record_pos=(0.037, 0.065), resolution=(400, 700))
 final_check = Template(r"screenshot/final_check.png", record_pos=(0.0, 0.0), resolution=(400, 700))
+Temple = Template(r"screenshot/temple.png", record_pos=(-0.003, -0.128), resolution=(400, 700))
+dark_temple = Template(r"screenshot/dark_temple.png", record_pos=(-0.22, 0.477), resolution=(400, 700))
+time_temple_second = Template(r"screenshot/time_temple_second.png", record_pos=(-0.315, -0.065), resolution=(400, 700))
+choose_fruit = Template(r"screenshot/choose_fruit.png", record_pos=(-0.323, -0.61), resolution=(400, 700))
+choose_fruit_done = Template(r"screenshot/choose_fruit_done.png", record_pos=(-0.005, -0.122), resolution=(400, 700))

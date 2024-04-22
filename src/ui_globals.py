@@ -37,7 +37,7 @@ friendship_frm = ttk.Frame(option_notebook)
 map_choose_frm = ttk.Frame(stage_frm)
 # Map choose label and Combobox
 map_label = tk.Label(map_choose_frm, text="脚本:")
-map_choose_combobox = ttk.Combobox(map_choose_frm, values=["训练", "重复", "塔"])
+map_choose_combobox = ttk.Combobox(map_choose_frm, values=["训练", "重复", "塔", "神殿"])
 # Run times label and Entry
 run_times_label = tk.Label(map_choose_frm, text="跑本次数:")
 run_times_entry = tk.Entry(map_choose_frm)

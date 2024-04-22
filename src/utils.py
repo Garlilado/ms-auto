@@ -76,6 +76,7 @@ def pass_stage(holder:str, acc_list: list, map:str, button: tk.Button, run_times
         # Let the holder start the map
         while run_times == '' or run_times > 0:
             if holder_acc.choose_map(map, len(acc_list)):
+                sleep(3)
                 if map == 'Training' or len(acc_list) == 1:
                     holder_acc.start_stage(1)
                     holder_acc.pass_level()
@@ -85,7 +86,6 @@ def pass_stage(holder:str, acc_list: list, map:str, button: tk.Button, run_times
                         if acc != holder:
                             p = subprocess.Popen(["python", "src/operate.py", "--join", str(acc)])
                             processes.append(p)
-                    sleep(3)
                     # Wait for all processes to finish
                     for p in processes:
                         exit_code = p.wait()

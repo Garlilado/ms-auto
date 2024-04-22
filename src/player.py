@@ -112,10 +112,9 @@ class Account:
             # Click the map entrance
             self.__touch_until_appears((200,550), Adventure)
             # Go to the grow map
-            training_pos = self.__touch_until_appears(Grow,Training)
-            print("Training position: ", training_pos)
+            self.__touch_until_appears(Grow, Training)
             # Go into the training stage
-            self.__touch_until_appears(training_pos, Back)
+            self.__touch_until_appears(Training, Back)
             # Deal with different training stages
             while True: #loop to search for dedicated stages
                 if time.time() - start_time > timeout:
@@ -155,6 +154,21 @@ class Account:
                 # TODO: add reward box choose
                 self.__touch_until_appears(Attack, Waiting, timeout)
             # TODO: add self-mode for repeat
+        elif map_name == 'Temple':
+            # Go to the temple map
+            # Click the map entrance
+            self.__touch_until_appears((200,550), Adventure)
+            # Go to the grow map
+            self.__touch_until_appears(Grow, Temple)
+            # Go into the temple stage
+            self.__touch_until_appears(Temple, Back)
+            # Swipe to choose dark temple
+            swipe((200,500),(200,300),duration=0.2)
+            while not exists(dark_temple): # Check if dark temple exist
+                swipe((200,500),(200,300),duration=0.2)
+            self.__touch_until_appears(dark_temple, time_temple_second)
+            self.__touch_until_appears(time_temple_second, multi_player)
+            self.__check_player_amount(player_amount)
         return True
     
     @set_device
@@ -227,6 +241,18 @@ class Account:
             # luck max ok position (200,420)
             if self.__touch_until_disappear(resultOk):
                 break
+        # Check if choose fruit
+        try:
+            wait(choose_fruit, timeout=3)
+            # Choose Fruit
+            while True:
+                if exists(choose_fruit_done):
+                    self.__touch_until_disappear(passOk)
+                    break
+                sleep(0.5)
+            # TODO: add automatic choose fruit
+        except:
+            pass
         # back to the initial page
         result_exists = exists(Initial)
         while not result_exists:
