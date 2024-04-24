@@ -181,7 +181,7 @@ class Account:
         self.__touch_until_disappear(Join)
         # check if join successfully
         while True:
-            sleep(1) # Add sleep to reduce judge time
+            sleep(2) # Add sleep to reduce judge time
             if exists(room_exist): # search successfully
                 self.__touch_until_disappear(re_search, pos=(200,240))
                 self.__touch_until_disappear(Attack)
@@ -191,6 +191,8 @@ class Account:
                 if failed_times == 0:
                     raise TimeoutError("Failed to join the stage")
                 self.__touch_until_appears(re_search, Searching)
+            elif exists(position_get): # Position get window comes
+                self.__touch_until_disappear(passOk)
             elif exists(Searching): # searching
                 continue
 
@@ -259,3 +261,9 @@ class Account:
             touch((200,350), duration=0.2)
             sleep(1)
             result_exists = exists(Initial)
+        # Check 3 times if need to close some windows
+        for _ in range(2):
+            if exists(Close):
+                self.__touch_until_disappear(Close)
+                break
+            sleep(0.5)

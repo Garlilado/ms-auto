@@ -1,4 +1,5 @@
 from math import exp
+from os import close
 from airtest.core.cv import Template
 from numpy import choose
 
@@ -46,3 +47,5 @@ dark_temple = Template(r"screenshot/dark_temple.png", record_pos=(-0.22, 0.477),
 time_temple_second = Template(r"screenshot/time_temple_second.png", record_pos=(-0.315, -0.065), resolution=(400, 700))
 choose_fruit = Template(r"screenshot/choose_fruit.png", record_pos=(-0.323, -0.61), resolution=(400, 700))
 choose_fruit_done = Template(r"screenshot/choose_fruit_done.png", record_pos=(-0.005, -0.122), resolution=(400, 700))
+Close = Template(r"screenshot/close.png", record_pos=(0.223, 0.573), resolution=(400, 700))
+position_get = Template(r"screenshot/position_get.png", record_pos=(0.223, 0.573), resolution=(400, 700))
